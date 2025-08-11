@@ -6,19 +6,20 @@ from langchain.prompts import PromptTemplate
 from langchain.schema import BaseOutputParser
 import torch
 
+app = FastAPI()
+
 class SummaryParser(BaseOutputParser):
     def parse(self, text: str) -> dict:
-        print("Parsing response...")
-        print("Response text:", text)
+
         sections = text.split("\n")
-        print("\n\n")
-        print("Sections found:", sections)
-        print("\n\n")
         return {
             "Positive Feedback": sections[-3].replace("Positive Feedback: ", "").strip(),
             "Negative Feedback": sections[-2].replace("Negative Feedback: ", "").strip(),
             "Suggestions for Improvement": sections[-1].replace("Suggestions for Improvement: ", "").strip(),
         }
+
+class PollAnswers(BaseModel):
+    poll_answers: list[str]
 
 print("Loading model...")
 print("Is GPU available? " + "Yes" if torch.cuda.is_available() else "No")
@@ -31,6 +32,8 @@ summarization_model = pipeline(
     device=0,
 )   
 
+sentiment_model = pipeline("sentiment-analysis", device=0)
+
 llm = HuggingFacePipeline(
     pipeline=summarization_model
     )
@@ -39,9 +42,9 @@ template = PromptTemplate.from_template(
     """Summarize the following poll answers: {poll_answers}.
     Respond in exactly three lines, each starting with the section name followed by the summary on the same line.
     Format the response as follows:
-        "Positive Feedback": <1–2 sentences combining all strengths into a concise summary.>
-        "Negative Feedback": <1–2 sentences combining all criticisms into a concise summary.>
-        "Suggestions for Improvement": <1–2 sentences summarizing common recommendations.>
+        "Positive Feedback": <1-2 sentences combining all strengths into a concise summary.>
+        "Negative Feedback": <1-2 sentences combining all criticisms into a concise summary.>
+        "Suggestions for Improvement": <1-2 sentences summarizing common recommendations.>
     Do not list multiple points separately — merge them into flowing sentences. Do not exceed two sentences per section.
     Do not include any additional text or explanations.
     Do not add additionial newlines or formatting.
@@ -62,6 +65,28 @@ test_poll_answers = """
     "Too many bugs and glitches, which ruined the immersion."
 """
 
-response = chain.invoke({"poll_answers": test_poll_answers})
+@app.get("/summarize")
+async def summarize_poll_answers():
 
-print("Response:", response)
+    result = chain.invoke({"poll_answers": test_poll_answers})
+    return result
+
+@app.post("/summarize")
+async def summarize_poll_answers_post(body: PollAnswers):
+
+    positive_answers_amount, negative_answers_amount = 0, 0
+
+    for answer in body.poll_answers:
+        sentiment = sentiment_model(answer)[0]
+        if sentiment['label'] == 'POSITIVE':
+            positive_answers_amount += 1
+        else:
+            negative_answers_amount += 1
+
+    poll_answers = "\n".join(body.poll_answers)
+
+    result = chain.invoke({"poll_answers": poll_answers})
+    result["Positive Answers Percentage"] = f"{(positive_answers_amount / len(body.poll_answers)) * 100:.2f}%"
+    result["Negative Answers Percentage"] = f"{(negative_answers_amount / len(body.poll_answers)) * 100:.2f}%"
+
+    return result

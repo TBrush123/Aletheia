@@ -40,7 +40,7 @@ llm = HuggingFacePipeline(
     )
 
 template = PromptTemplate.from_template(
-    """Summarize the following poll answers: {poll_answers}.
+    """Summarize the following poll answers with provided question: {poll_answers}.
     Respond in exactly three lines, each starting with the section name followed by the summary on the same line.
     Format the response as follows:
         "Positive Feedback": <1-2 sentences combining all strengths into a concise summary.>
@@ -99,10 +99,7 @@ async def summarize_poll_answers_post(body: list[PollQuestion]):
         poll_answers.append(f"{question}: {"\n".join(answers)}")
 
     result = chain.invoke({"poll_answers": poll_answers})
-    result["Positive Answers Percentage"] = f"{(positive_answers_amount / answer_count) * 100:.2f}%"
-    result["Negative Answers Percentage"] = f"{((answer_count - positive_answers_amount) / answer_count) * 100:.2f}%"
+    result["Positive Answer Percentage"] = f"{(positive_answers_amount / answer_count) * 100:.2f}%"
+    result["Negative Answer Percentage"] = f"{((answer_count - positive_answers_amount) / answer_count) * 100:.2f}%"
 
     return result
-
-def connect_question_and_answers(poll):
-    return [{"question": question, "answers": answers} for question, answers in poll.items()]

@@ -18,8 +18,9 @@ class SummaryParser(BaseOutputParser):
             "Suggestions for Improvement": sections[-1].replace("Suggestions for Improvement: ", "").strip(),
         }
 
-class PollAnswers(BaseModel):
-    poll_answers: list[str]
+class PollQuestion(BaseModel):
+    question: str
+    answers: list[str]
 
 print("Loading model...")
 print("Is GPU available? " + "Yes" if torch.cuda.is_available() else "No")
@@ -52,18 +53,21 @@ template = PromptTemplate.from_template(
 
 chain = template | llm | SummaryParser()
 
-test_poll_answers = """
-    "Incredibly immersive — the worldbuilding and atmosphere kept me hooked for hours."
-    "Smooth gameplay with satisfying mechanics; controls feel very responsive."
-    "The story was engaging, with unexpected twists that kept me guessing."
-    "Graphics and sound design were top-notch — a real treat for the senses."
-    "Lots of replay value thanks to multiple endings and hidden content."
-    "Gameplay became repetitive after the first few hours."
-    "Balance issues — some enemies felt unfairly difficult."
-    "The controls were clunky, especially during combat sequences."
-    "The story had potential but felt rushed and underdeveloped."
-    "Too many bugs and glitches, which ruined the immersion."
-"""
+test_poll_answers = [
+    {"question" : "What did you think about the movie’s story?",
+     "answers": [
+        "The story was captivating and kept me engaged throughout.",
+        "I found the plot to be predictable and lacking depth.",
+        "The storyline was unique and refreshing, I loved it!",
+        "It was a bit confusing at times, but overall enjoyable."
+    ]},
+    {"question" : "How did you feel about the acting performances?",
+     "answers": [
+        "The actors delivered outstanding performances, especially the lead.",
+        "Some performances felt overacted and unrealistic.",
+        "I thought the supporting cast was excellent, adding depth to the film."
+    ]}
+]
 
 @app.get("/summarize")
 async def summarize_poll_answers():
@@ -72,21 +76,33 @@ async def summarize_poll_answers():
     return result
 
 @app.post("/summarize")
-async def summarize_poll_answers_post(body: PollAnswers):
+async def summarize_poll_answers_post(body: list[PollQuestion]):
 
-    positive_answers_amount, negative_answers_amount = 0, 0
+    positive_answers_amount = 0
 
-    for answer in body.poll_answers:
-        sentiment = sentiment_model(answer)[0]
-        if sentiment['label'] == 'POSITIVE':
-            positive_answers_amount += 1
-        else:
-            negative_answers_amount += 1
+    poll_answers = []
+    answer_count = 0
 
-    poll_answers = "\n".join(body.poll_answers)
+    for index in body:
+
+        question, answers = index.question, index.answers
+
+        print(f"Processing question: {question}")
+        print(f"Answers: {answers}")
+
+        for answer in answers:
+            sentiment = sentiment_model(answer)[0]
+            if sentiment['label'] == 'POSITIVE':
+                positive_answers_amount += 1
+            answer_count += 1
+            
+        poll_answers.append(f"{question}: {"\n".join(answers)}")
 
     result = chain.invoke({"poll_answers": poll_answers})
-    result["Positive Answers Percentage"] = f"{(positive_answers_amount / len(body.poll_answers)) * 100:.2f}%"
-    result["Negative Answers Percentage"] = f"{(negative_answers_amount / len(body.poll_answers)) * 100:.2f}%"
+    result["Positive Answers Percentage"] = f"{(positive_answers_amount / answer_count) * 100:.2f}%"
+    result["Negative Answers Percentage"] = f"{((answer_count - positive_answers_amount) / answer_count) * 100:.2f}%"
 
     return result
+
+def connect_question_and_answers(poll):
+    return [{"question": question, "answers": answers} for question, answers in poll.items()]

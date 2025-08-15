@@ -96,7 +96,7 @@ test_poll_answers = [
 ]
 
 
-@app.get("/summarize")
+@app.get("/summarize/{poll_id}")
 async def summarize_poll_answers():
 
     result = chain.invoke({"poll_answers": test_poll_answers})
@@ -159,3 +159,17 @@ def create_answer(answer: schemas.AnswerCreate, db: Session = Depends(get_db)):
 @app.get("/polls/{poll_id}/responses", response_model=List[schemas.PollOut])
 def get_answers_for_poll(poll_id: int, db: Session = Depends(get_db)):
     return crud.get_answers_for_poll(db=db, poll_id=poll_id)
+
+
+@app.post("/users", response_model=schemas.UserOut)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    return crud.create_user(db=db, user=user)
+
+@app.get("/users/{user_id}", response_model=schemas.UserOut)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = crud.get_user(db=db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+

@@ -1,11 +1,7 @@
 import Textbox from "../components/Textbox";
-import AuthLink from "../components/AuthLink";
 import Submit from "../components/Submit";
-import { useNavigate } from "react-router-dom";
 
-function Login({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
-  const navigate = useNavigate();
-
+export default function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
       <div className="bg-white shadow-lg rounded-xl p-6 w-96">
@@ -15,21 +11,10 @@ function Login({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
 
         <Textbox placeholder="Enter username" />
         <Textbox placeholder="Enter password" type="password" />
+        <Textbox placeholder="Enter password again" type="password" />
 
-        <div className="flex justify-between text-sm mb-4">
-          <button
-            onClick={() => {
-              setActiveTab("register");
-              navigate("/register");
-            }}
-            className="text-yellow-600"
-          >
-            Register now
-          </button>
-          <AuthLink text="Forgot password?" />
-        </div>
 
-        <Submit text="Login" />
+        <Submit text="Register" />
 
         <div className="flex items-center my-4">
           <div className="flex-grow h-px bg-gray-300"></div>
@@ -49,5 +34,3 @@ function Login({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
     </div>
   );
 }
-
-export default Login;

@@ -1,18 +1,25 @@
 import Textbox from "../components/Textbox";
 import Submit from "../components/Submit";
-import { authService } from "../services/authService";
+import authService from "../services/authService";
 import { useState } from "react";
 
-export default function Login() {
+export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordCheck, setPasswordCheck] = useState("");
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
+    if (password !== passwordCheck) {
+      alert("Passwords do not match");
+      return;
+    }
+
     try {
-      const response = await authService.login(username, password);
-      console.log("Login successful:", response);
+      await authService.register(username, password);
+      alert("Registration successful! You can now log in.");
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Registration failed:", error);
+      alert("Registration failed. Please try again.");
     }
   };
 
@@ -35,11 +42,17 @@ export default function Login() {
           className="w-full p-2 mb-4 border rounded"
           onChange={(e) => setPassword(e.target.value)}
         />
+        <input
+          type="password"
+          placeholder="Enter password again"
+          className="w-full p-2 mb-4 border rounded"
+          onChange={(e) => setPasswordCheck(e.target.value)}
+        />
         <button
           className="w-full bg-yellow-400 py-2 rounded font-bold"
-          onClick={handleLogin}
+          onClick={handleRegister}
         >
-          Login
+          Register
         </button>
         <div className="flex items-center my-4">
           <div className="flex-grow h-px bg-gray-300"></div>

@@ -8,9 +8,18 @@ from langchain.schema import BaseOutputParser
 from sqlalchemy.orm import Session
 from . import models, schemas, crud, database
 from .database import engine, SessionLocal
+from fastapi.middleware.cors import CORSMiddleware
 import torch
 
-app = FastAPI(title="AI Poll Insights API")
+app = FastAPI(title="AI Poll Insights API", root_path="/api")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # или ["*"] для всех
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -172,4 +181,16 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+@app.post("/auth/login")
+def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_username(db=db, username=user.username)
+    if not db_user or not crud.verify_password(user.password, db_user.password):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    return {"message": "Login successful", "user_id": db_user.id}
 
+@app.post("/auth/register")
+def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_username(db=db, username=user.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    return crud.create_user(db=db, user=user)

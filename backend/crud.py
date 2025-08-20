@@ -60,3 +60,9 @@ def create_user(db: Session, user: schemas.UserCreate):
 def get_user_by_username(db: Session, username: str):
     return db.query(models.User).filter(models.User.username == username).first()
 
+
+def verify_user(db: Session, username: str, password: str):
+    user = get_user_by_username(db, username)
+    if user and user.password == password:
+        return user
+    return None

@@ -13,7 +13,20 @@ class Poll(Base):
     questions = relationship(
         "Question", back_populates="poll", cascade="all, delete-orphan"
     )
+    ai_insights = relationship(
+        "AIPollInsights", back_populates="poll", cascade="all, delete-orphan"
+        )
 
+class AIPollInsights(Base):
+    __tablename__ = "ai_poll_insights"
+
+    id = Column(Integer, primary_key=True, index=True)
+    poll_id = Column(Integer, ForeignKey("polls.id"))
+    positive_feedback = Column(Text, nullable=False)
+    negative_feedback = Column(Text, nullable=False)
+    suggestions_for_improvement = Column(Text, nullable=False)
+
+    poll = relationship("Poll", back_populates="ai_insights")
 
 class Question(Base):
     __tablename__ = "questions"
@@ -45,3 +58,4 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
+

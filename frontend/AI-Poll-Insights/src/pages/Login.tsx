@@ -1,10 +1,24 @@
 import Textbox from "../components/Textbox";
 import AuthLink from "../components/AuthLink";
 import Submit from "../components/Submit";
-import { useNavigate } from "react-router-dom";
+import authService from "../services/authService";
+import { useState } from "react";
 
-function Login({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
-  const navigate = useNavigate();
+function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  function handleLogin() {
+    authService
+      .login(username, password)
+      .then(() => {
+        alert("Login successful!");
+      })
+      .catch((error) => {
+        console.error("Login failed:", error);
+        alert("Login failed. Please check your credentials.");
+      });
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
@@ -13,24 +27,25 @@ function Login({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
           AI Poll Insights
         </h1>
 
-        <Textbox placeholder="Enter username" />
-        <Textbox placeholder="Enter password" type="password" />
+        <input
+          type="text"
+          placeholder="Enter username"
+          className="w-full p-2 mb-4 border rounded"
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Enter password"
+          className="w-full p-2 mb-4 border rounded"
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-        <div className="flex justify-between text-sm mb-4">
-          <button
-            onClick={() => {
-              setActiveTab("register");
-              navigate("/register");
-            }}
-            className="text-yellow-600"
-          >
-            Register now
-          </button>
-          <AuthLink text="Forgot password?" />
-        </div>
-
-        <Submit text="Login" />
-
+        <button
+          className="w-full bg-yellow-400 py-2 rounded font-bold"
+          onClick={handleLogin}
+        >
+          Login
+        </button>
         <div className="flex items-center my-4">
           <div className="flex-grow h-px bg-gray-300"></div>
           <span className="mx-2 text-gray-500 text-sm">or</span>

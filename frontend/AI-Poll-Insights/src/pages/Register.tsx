@@ -1,31 +1,28 @@
-import Textbox from "../components/Textbox";
-import Submit from "../components/Submit";
-import authService from "../services/authService";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
-export default function Register() {
+function Register() {
+  const { register } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordCheck, setPasswordCheck] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const handleRegister = async () => {
-    if (password !== passwordCheck) {
-      alert("Passwords do not match");
-      return;
-    }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      await authService.register(username, password);
-      alert("Registration successful! You can now log in.");
-    } catch (error) {
-      console.error("Registration failed:", error);
-      alert("Registration failed. Please try again.");
+      await register(username, password);
+      console.log("Registered and logged in!");
+    } catch (err) {
+      setError("Failed to register");
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <div className="bg-white shadow-lg rounded-xl p-6 w-96">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-lg rounded-xl p-6 w-96"
+      >
         <h1 className="text-2xl font-bold text-center mb-6">
           AI Poll Insights
         </h1>
@@ -42,15 +39,9 @@ export default function Register() {
           className="w-full p-2 mb-4 border rounded"
           onChange={(e) => setPassword(e.target.value)}
         />
-        <input
-          type="password"
-          placeholder="Enter password again"
-          className="w-full p-2 mb-4 border rounded"
-          onChange={(e) => setPasswordCheck(e.target.value)}
-        />
         <button
           className="w-full bg-yellow-400 py-2 rounded font-bold"
-          onClick={handleRegister}
+          type="submit"
         >
           Register
         </button>
@@ -68,7 +59,10 @@ export default function Register() {
             Twitter
           </button>
         </div>
-      </div>
+      </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }
+
+export default Register;

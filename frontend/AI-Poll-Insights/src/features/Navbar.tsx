@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
+  const { user, logout } = useAuth();
   const location = useLocation();
-
   const isActive = (path: string) => location.pathname === path;
+
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto">
@@ -29,42 +31,69 @@ function Navbar() {
               Home
             </Link>
           </li>
-          <li
-            className={`${
-              isActive("/login")
-                ? "border-b-2 border-blue-500"
-                : "border-b-2 border-transparent hover:border-gray-200"
-            } p-3`}
-          >
-            <Link
-              to="/login"
-              className={`flex-1 py-2 text-center font-medium ${
-                isActive("/login")
-                  ? "text-black dark:text-white"
-                  : "text-gray-500 dark:text-gray-400"
-              } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
-            >
-              Login
-            </Link>
-          </li>
-          <li
-            className={`${
-              isActive("/register")
-                ? "border-b-2 border-blue-500"
-                : "border-b-2 border-transparent hover:border-gray-200"
-            } p-3`}
-          >
-            <Link
-              to="/register"
-              className={`flex-1 py-2 text-center font-medium ${
-                isActive("/register")
-                  ? "text-black dark:text-white"
-                  : "text-gray-500 dark:text-gray-400"
-              } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
-            >
-              Register
-            </Link>
-          </li>
+          {user ? (
+            <>
+              <li>
+                <Link
+                  to="/profile"
+                  className={
+                    isActive("/profile")
+                      ? "border-b-2 border-blue-500 pb-1"
+                      : "hover:underline"
+                  }
+                >
+                  {user.username}
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={logout}
+                  className="text-red-500 hover:underline"
+                >
+                  Logout
+                </button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li
+                className={`${
+                  isActive("/login")
+                    ? "border-b-2 border-blue-500"
+                    : "border-b-2 border-transparent hover:border-gray-200"
+                } p-3`}
+              >
+                <Link
+                  to="/login"
+                  className={`flex-1 py-2 text-center font-medium ${
+                    isActive("/login")
+                      ? "text-black dark:text-white"
+                      : "text-gray-500 dark:text-gray-400"
+                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
+                >
+                  Login
+                </Link>
+              </li>
+              <li
+                className={`${
+                  isActive("/register")
+                    ? "border-b-2 border-blue-500"
+                    : "border-b-2 border-transparent hover:border-gray-200"
+                } p-3`}
+              >
+                <Link
+                  to="/register"
+                  className={`flex-1 py-2 text-center font-medium ${
+                    isActive("/register")
+                      ? "text-black dark:text-white"
+                      : "text-gray-500 dark:text-gray-400"
+                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
+                >
+                  Register
+                </Link>
+              </li>
+            </>
+          )}
         </ul>
       </div>
     </nav>

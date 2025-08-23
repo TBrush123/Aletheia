@@ -1,28 +1,26 @@
-import Textbox from "../components/Textbox";
-import AuthLink from "../components/AuthLink";
-import Submit from "../components/Submit";
-import authService from "../services/authService";
+import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 
 function Login() {
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleLogin() {
-    authService
-      .login(username, password)
-      .then(() => {
-        alert("Login successful!");
-      })
-      .catch((error) => {
-        console.error("Login failed:", error);
-        alert("Login failed. Please check your credentials.");
-      });
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      await login(username, password);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <div className="bg-white shadow-lg rounded-xl p-6 w-96">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-lg rounded-xl p-6 w-96"
+      >
         <h1 className="text-2xl font-bold text-center mb-6">
           AI Poll Insights
         </h1>
@@ -42,7 +40,7 @@ function Login() {
 
         <button
           className="w-full bg-yellow-400 py-2 rounded font-bold"
-          onClick={handleLogin}
+          type="submit"
         >
           Login
         </button>
@@ -60,7 +58,7 @@ function Login() {
             Twitter
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

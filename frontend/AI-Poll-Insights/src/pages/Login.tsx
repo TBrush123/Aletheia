@@ -1,10 +1,12 @@
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -13,6 +15,7 @@ function Login() {
     } catch (error) {
       console.error("Login failed:", error);
     }
+    navigate("/");
   }
 
   return (

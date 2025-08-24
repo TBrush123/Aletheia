@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
 
@@ -33,25 +33,41 @@ function Navbar() {
           </li>
           {user ? (
             <>
-              <li>
+              <li
+                className={`${
+                  isActive("/profile")
+                    ? "border-b-2 border-blue-500"
+                    : "border-b-2 border-transparent hover:border-gray-200"
+                } p-3`}
+              >
                 <Link
                   to="/profile"
-                  className={
+                  className={`flex-1 py-2 text-center font-medium ${
                     isActive("/profile")
-                      ? "border-b-2 border-blue-500 pb-1"
-                      : "hover:underline"
-                  }
+                      ? "text-black dark:text-white"
+                      : "text-gray-500 dark:text-gray-400"
+                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
                 >
                   {user.username}
                 </Link>
               </li>
-              <li>
-                <button
-                  onClick={logout}
-                  className="text-red-500 hover:underline"
+              <li
+                className={`${
+                  isActive("/logout")
+                    ? "border-b-2 border-blue-500"
+                    : "border-b-2 border-transparent hover:border-gray-200"
+                } p-3`}
+              >
+                <Link
+                  to="/logout"
+                  className={`flex-1 py-2 text-center font-medium ${
+                    isActive("/logout")
+                      ? "text-black dark:text-white"
+                      : "text-gray-500 dark:text-gray-400"
+                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-red-800 dark:hover:text-red-300`}
                 >
-                  Logout
-                </button>
+                  Log out
+                </Link>
               </li>
             </>
           ) : (

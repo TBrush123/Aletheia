@@ -186,7 +186,7 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     user = crud.get_user_by_username(db=db, username=user.username)
     if not user or not crud.verify_user(db, user.username, user.password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
-    return {"message": "Login successful", "user_id": user.id}
+    return {"username": user.username, "password": user.password, "message": "Login successful", "user_id": user.id}
 
 @app.post("/auth/register")
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):

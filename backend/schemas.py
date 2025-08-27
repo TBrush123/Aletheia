@@ -22,11 +22,13 @@ class AnswerOut(BaseModel):
 # -- Questions --
 class QuestionCreate(BaseModel):
     text: str
+    poll_id: int
 
 
 class QuestionOut(BaseModel):
     id: int
     text: str
+    poll_id: int
 
     class Config:
         orm_mode = True
@@ -35,15 +37,13 @@ class QuestionOut(BaseModel):
 # -- Polls --
 class PollCreate(BaseModel):
     title: str
-    creator_id: str
-    questions: List[QuestionCreate]
+    created_by: str
 
 
 class PollOut(BaseModel):
     id: int
     title: str
-    creator_id: str
-    questions: List[QuestionOut]
+    created_by: str
 
     class Config:
         orm_mode = True

@@ -1,9 +1,12 @@
-import PollQuestion from "../components/PollQuestion";
-import PollTitle from "../components/PollTitle";
 import { useState } from "react";
+import { pollService, type Poll } from "../services/PollService";
+import { questionService, type Question } from "../services/QuestionService";
+import { useNavigate } from "react-router-dom";
 
 function PollCreate() {
+  const [title, setTitle] = useState<string>("");
   const [questions, setQuestions] = useState<string[]>([""]);
+  const navigate = useNavigate();
 
   function addQuestion() {
     setQuestions([...questions, ""]);
@@ -12,7 +15,7 @@ function PollCreate() {
     const updated = questions.filter((_, i) => i !== index);
     setQuestions(updated);
   }
-  function showButton() {
+  function showAddButton() {
     if (questions[questions.length - 1].trim() !== "") {
       return (
         <button
@@ -24,13 +27,51 @@ function PollCreate() {
       );
     }
   }
+  function canSubmit() {
+    return (
+      questions.every((q) => q.trim() !== "") &&
+      questions.length > 0 &&
+      title.trim() !== ""
+    );
+  }
+  function submitButton() {
+    if (canSubmit()) {
+      return (
+        <button
+          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 mx-4"
+          type="submit"
+        >
+          Submit Poll
+        </button>
+      );
+    }
+  }
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    pollService.createPoll(title).then((poll: Poll) => {
+      questions.forEach((q) => {
+        questionService.addQuestion(poll.id, q);
+      });
+    });
+    navigate("/");
+  }
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <div className="bg-white shadow-lg rounded-xl p-6 w-6/12 text-center">
-        <PollTitle />
+      <form
+        className="bg-white shadow-lg rounded-xl p-6 w-6/12 text-center"
+        onSubmit={handleSubmit}
+      >
+        <div>
+          <input
+            type="text"
+            placeholder="Poll Title"
+            className="font-bold text-4xl mb-8"
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
         {questions.map((q, index) => (
           <div key={index} className="mb-4">
-            <label>{index + 1}</label>
+            <label>{index + 1}.</label>
             <input
               type="text"
               placeholder="Question"
@@ -54,8 +95,9 @@ function PollCreate() {
             )}
           </div>
         ))}
-        {showButton()}
-      </div>
+        {showAddButton()}
+        {submitButton()}
+      </form>
     </div>
   );
 }

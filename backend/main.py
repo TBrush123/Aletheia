@@ -194,3 +194,12 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Username already exists")
     return crud.create_user(db=db, user=user)
+
+@app.post("/polls", response_model=schemas.PollOut)
+def create_poll(poll: schemas.PollCreate, db: Session = Depends(get_db)):
+    return crud.create_poll(db=db, poll=poll)
+
+@app.post("/questions", response_model=schemas.QuestionOut)
+def create_question(question: schemas.QuestionCreate, db: Session = Depends(get_db)):
+    return crud.create_question(db=db, question=question)
+

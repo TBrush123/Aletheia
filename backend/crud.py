@@ -4,18 +4,23 @@ from . import models, schemas
 
 def create_poll(db: Session, poll: schemas.PollCreate):
 
-    poll_model = models.Poll(title=poll.title, creator_id=poll.creator_id)
+    poll_model = models.Poll(title=poll.title, created_by=poll.created_by)
 
     db.add(poll_model)
     db.flush()
-
-    for question in poll.questions:
-        db.add(models.Question(poll_id=poll_model.id, text=question.text))
 
     db.commit()
     db.refresh(poll_model)
     return poll_model
 
+def create_question(db: Session, question: schemas.QuestionCreate):
+
+    question_model = models.Question(poll_id=question.poll_id, text=question.text)  
+    db.add(question_model)
+    db.commit()
+    db.refresh(question_model)
+
+    return question_model
 
 def get_poll(db: Session, poll_id: int):
 

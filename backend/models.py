@@ -7,7 +7,7 @@ class Poll(Base):
     __tablename__ = "polls"
 
     id = Column(Integer, primary_key=True, index=True)
-    creator_id = Column(Integer, nullable=False)
+    created_by = Column(String, nullable=False)
     title = Column(String, nullable=False)
 
     questions = relationship(

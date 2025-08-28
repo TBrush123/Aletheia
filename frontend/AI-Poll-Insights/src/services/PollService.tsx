@@ -19,11 +19,9 @@ export const pollService = {
     return response.data;
   },
   getPolls: async () => {
-    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
     const response = await axios.get(`${API_BASE_URL}/polls`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      params: { created_by: JSON.parse(user || "{}").username },
     });
     return response.data;
   },

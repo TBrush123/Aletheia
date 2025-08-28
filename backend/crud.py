@@ -31,6 +31,8 @@ def get_polls(db: Session, skip: int = 0, limit: int = 10):
 
     return db.query(models.Poll).offset(skip).limit(limit).all()
 
+def get_polls_by_user(db: Session, created_by: str):
+    return db.query(models.Poll).filter(models.Poll.created_by == created_by).all()
 
 def create_answer(db: Session, answer: schemas.AnswerCreate):
 

@@ -147,11 +147,6 @@ async def summarize_poll_answers_post(body: list[PollQuestion]):
     return result
 
 
-@app.post("/polls", response_model=schemas.PollOut)
-def create_poll(poll: schemas.PollCreate, db: Session = Depends(get_db)):
-    return crud.create_poll(db=db, poll=poll)
-
-
 @app.get("/polls/{poll_id}", response_model=schemas.PollOut)
 def get_poll(poll_id: int, db: Session = Depends(get_db)):
     poll = crud.get_poll(db=db, poll_id=poll_id)
@@ -194,6 +189,10 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Username already exists")
     return crud.create_user(db=db, user=user)
+
+@app.get("/polls", response_model=List[schemas.PollOut])
+def get_polls(created_by: str, db: Session = Depends(get_db)):
+    return crud.get_polls_by_user(db=db, created_by=created_by)
 
 @app.post("/polls", response_model=schemas.PollOut)
 def create_poll(poll: schemas.PollCreate, db: Session = Depends(get_db)):

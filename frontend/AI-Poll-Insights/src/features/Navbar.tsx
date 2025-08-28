@@ -29,6 +29,24 @@ function Navbar() {
               </li>
               <li
                 className={`${
+                  isActive("/polls")
+                    ? "border-b-2 border-blue-500"
+                    : "border-b-2 border-transparent hover:border-gray-200"
+                } p-3`}
+              >
+                <Link
+                  to="/polls"
+                  className={`flex-1 py-2 text-center font-medium ${
+                    isActive("/profile")
+                      ? "text-black dark:text-white"
+                      : "text-gray-500 dark:text-gray-400"
+                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
+                >
+                  My Polls
+                </Link>
+              </li>
+              <li
+                className={`${
                   isActive("/profile")
                     ? "border-b-2 border-blue-500"
                     : "border-b-2 border-transparent hover:border-gray-200"

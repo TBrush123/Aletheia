@@ -73,3 +73,6 @@ def verify_user(db: Session, username: str, password: str):
     if user and user.password == password:
         return user
     return None
+
+def get_questions_for_poll(db: Session, poll_id: int):
+    return db.query(models.Question).filter(models.Question.poll_id == poll_id).all()

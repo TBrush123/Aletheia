@@ -202,3 +202,6 @@ def create_poll(poll: schemas.PollCreate, db: Session = Depends(get_db)):
 def create_question(question: schemas.QuestionCreate, db: Session = Depends(get_db)):
     return crud.create_question(db=db, question=question)
 
+@app.get("/questions/{poll_id}", response_model=List[schemas.QuestionOut])
+def get_questions_for_poll(poll_id: int, db: Session = Depends(get_db)):
+    return crud.get_questions_for_poll(db=db, poll_id=poll_id)

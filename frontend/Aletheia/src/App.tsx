@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import Logout from "./pages/Logout";
 import PollCreate from "./pages/PollCreate";
 import Polls from "./pages/Polls";
+import PollsAnswer from "./pages/PollAnswer";
 import Navbar from "./features/Navbar";
 import { Routes, Route } from "react-router-dom";
 
@@ -18,6 +19,7 @@ function App() {
         <Route path="/logout" element={<Logout />} />
         <Route path="/polls/create" element={<PollCreate />} />
         <Route path="/polls" element={<Polls />} />
+        <Route path="/polls/:id" element={<PollsAnswer />} />
       </Routes>
     </>
   );

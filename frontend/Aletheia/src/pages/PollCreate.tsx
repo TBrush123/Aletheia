@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { pollService, type Poll } from "../services/PollService";
-import { questionService, type Question } from "../services/QuestionService";
+import { questionService } from "../services/QuestionService";
 import { useNavigate } from "react-router-dom";
 
 function PollCreate() {

@@ -5,7 +5,7 @@ const API_BASE_URL = "http://localhost:8000/api";
 export type Poll = {
   id: number;
   title: string;
-  createdBy: string;
+  created_by: string;
 };
 
 export const pollService = {
@@ -28,6 +28,15 @@ export const pollService = {
   getPollDetails: async (pollId: number) => {
     const token = localStorage.getItem("token");
     const response = await axios.get(`${API_BASE_URL}/polls/${pollId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+  getPollQuestions: async (pollId: number) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_BASE_URL}/questions/${pollId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

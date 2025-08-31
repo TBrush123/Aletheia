@@ -11,17 +11,16 @@ export type Poll = {
 export const pollService = {
   createPoll: async (title: string) => {
     const user = localStorage.getItem("user");
-    console.log("Creating poll for user:", user);
     const response = await axios.post(`${API_BASE_URL}/polls`, {
       title,
-      created_by: JSON.parse(user || "{}").username,
+      creator_id: JSON.parse(user || "{}").id,
     });
     return response.data;
   },
   getPolls: async () => {
     const user = localStorage.getItem("user");
     const response = await axios.get(`${API_BASE_URL}/polls`, {
-      params: { created_by: JSON.parse(user || "{}").username },
+      params: { creator_id: JSON.parse(user || "{}").id },
     });
     return response.data;
   },

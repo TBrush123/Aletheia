@@ -37,13 +37,13 @@ class QuestionOut(BaseModel):
 # -- Polls --
 class PollCreate(BaseModel):
     title: str
-    created_by: str
+    creator_id: int
 
 
 class PollOut(BaseModel):
     id: int
     title: str
-    created_by: str
+    creator_id: int
 
     class Config:
         orm_mode = True

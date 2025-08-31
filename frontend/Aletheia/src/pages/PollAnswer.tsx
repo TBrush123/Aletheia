@@ -53,12 +53,12 @@ function PollAnswer() {
         <ol type="1" className="list-decimal list-inside">
           {questions.map((question) => (
             <>
-              <li key={question.id} className="mb-2">
+              <li key={question.id} className="mb-2 flex text-left">
                 {question.text}
               </li>
               <input type="text" className="border p-2 w-full mb-4" />
             </>
-          ))}
+          ))}   
         </ol>
         <button
           type="submit"

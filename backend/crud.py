@@ -4,7 +4,7 @@ from . import models, schemas
 
 def create_poll(db: Session, poll: schemas.PollCreate):
 
-    poll_model = models.Poll(title=poll.title, created_by=poll.created_by)
+    poll_model = models.Poll(title=poll.title, creator_id=poll.creator_id)
 
     db.add(poll_model)
     db.flush()
@@ -31,12 +31,12 @@ def get_polls(db: Session, skip: int = 0, limit: int = 10):
 
     return db.query(models.Poll).offset(skip).limit(limit).all()
 
-def get_polls_by_user(db: Session, created_by: str):
-    return db.query(models.Poll).filter(models.Poll.created_by == created_by).all()
+def get_polls_by_user(db: Session, creator_id: int):
+    return db.query(models.Poll).filter(models.Poll.creator_id == creator_id).all()
 
 def create_answer(db: Session, answer: schemas.AnswerCreate):
 
-    answer_model = models.Answer(**answer.model_dump())  # ???
+    answer_model = models.Answer(question_id=answer.question_id, text=answer.text, responder_id=answer.responder_id)
     db.add(answer_model)
     db.commit()
     db.refresh(answer_model)

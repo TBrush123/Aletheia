@@ -191,8 +191,8 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 @app.get("/polls", response_model=List[schemas.PollOut])
-def get_polls(created_by: str, db: Session = Depends(get_db)):
-    return crud.get_polls_by_user(db=db, created_by=created_by)
+def get_polls(creator_id: int, db: Session = Depends(get_db)):
+    return crud.get_polls_by_user(db=db, creator_id=creator_id)
 
 @app.post("/polls", response_model=schemas.PollOut)
 def create_poll(poll: schemas.PollCreate, db: Session = Depends(get_db)):
@@ -205,3 +205,11 @@ def create_question(question: schemas.QuestionCreate, db: Session = Depends(get_
 @app.get("/questions/{poll_id}", response_model=List[schemas.QuestionOut])
 def get_questions_for_poll(poll_id: int, db: Session = Depends(get_db)):
     return crud.get_questions_for_poll(db=db, poll_id=poll_id)
+
+@app.post("/answers", response_model=List[schemas.AnswerOut])
+def submit_answers(answers: List[schemas.AnswerCreate], db: Session = Depends(get_db)):
+    created_answers = []
+    for answer in answers:
+        created_answer = crud.create_answer(db=db, answer=answer)
+        created_answers.append(created_answer)
+    return created_answers

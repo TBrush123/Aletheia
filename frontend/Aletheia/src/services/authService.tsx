@@ -18,9 +18,10 @@ export const authService = {
     localStorage.setItem("token", "banana"); // Test token
     response.data.token = "banana"; // Test token
     response.data.user = {
-      id: response.data.id,
+      id: response.data.user_id,
       username: response.data.username,
     };
+    console.log("Storing user:", response.data.user);
     return response.data;
   },
   register: async (username: string, password: string) => {

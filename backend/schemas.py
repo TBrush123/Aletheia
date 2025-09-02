@@ -6,7 +6,7 @@ from typing import List, Optional
 class AnswerCreate(BaseModel):
     question_id: int
     responder_id: int
-    answer_text: str
+    text: str
 
 
 class AnswerOut(BaseModel):

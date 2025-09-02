@@ -1,6 +1,7 @@
 import { pollService } from "../services/PollService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { answerService } from "../services/AnswerService";
 
 function PollAnswer() {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,7 @@ function PollAnswer() {
   const [questions, setQuestions] = useState<
     Array<{ id: number; text: string }>
   >([]);
+  const [answers, setAnswers] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
     if (id) {
@@ -45,9 +47,17 @@ function PollAnswer() {
     return <div>Poll not found</div>;
   }
 
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    await answerService.submitAnswers(answers);
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <form className="bg-white shadow-lg rounded-xl p-6 w-6/12 text-center">
+      <form
+        className="bg-white shadow-lg rounded-xl p-6 w-6/12 text-center"
+        onSubmit={handleSubmit}
+      >
         <h1 className="text-4xl font-bold mb-4">{poll.title}</h1>
         <p className="text-gray-600 mb-4">Created by: {poll.created_by}</p>
         <ol type="1" className="list-decimal list-inside">
@@ -56,9 +66,19 @@ function PollAnswer() {
               <li key={question.id} className="mb-2 flex text-left">
                 {question.text}
               </li>
-              <input type="text" className="border p-2 w-full mb-4" />
+              <input
+                type="text"
+                className="border p-2 w-full mb-4"
+                value={answers[question.id] || ""}
+                onChange={(e) => {
+                  setAnswers((prev) => ({
+                    ...prev,
+                    [question.id]: e.target.value,
+                  }));
+                }}
+              />
             </>
-          ))}   
+          ))}
         </ol>
         <button
           type="submit"

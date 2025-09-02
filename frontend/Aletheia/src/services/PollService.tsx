@@ -15,7 +15,7 @@ export const pollService = {
       title,
       creator_id: JSON.parse(user || "{}").id,
     });
-    return response.data;
+    return response.data; 
   },
   getPolls: async () => {
     const user = localStorage.getItem("user");

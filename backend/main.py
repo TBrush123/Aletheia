@@ -48,6 +48,8 @@ class SummaryParser(BaseOutputParser):
             .strip(),
         }
 
+class AnswerList(BaseModel):
+    answers: List[schemas.AnswerCreate]
 
 class PollQuestion(BaseModel):
     question: str
@@ -206,10 +208,11 @@ def create_question(question: schemas.QuestionCreate, db: Session = Depends(get_
 def get_questions_for_poll(poll_id: int, db: Session = Depends(get_db)):
     return crud.get_questions_for_poll(db=db, poll_id=poll_id)
 
-@app.post("/answers", response_model=List[schemas.AnswerOut])
-def submit_answers(answers: List[schemas.AnswerCreate], db: Session = Depends(get_db)):
+@app.post("/answers")
+def submit_answers(answers: AnswerList, db: Session = Depends(get_db)):
+    print("Received answers:", answers)
     created_answers = []
-    for answer in answers:
+    for answer in answers.answers:
         created_answer = crud.create_answer(db=db, answer=answer)
         created_answers.append(created_answer)
     return created_answers

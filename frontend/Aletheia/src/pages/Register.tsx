@@ -26,9 +26,7 @@ function Register() {
         onSubmit={handleSubmit}
         className="bg-white shadow-lg rounded-xl p-6 w-96"
       >
-        <h1 className="text-2xl font-bold text-center mb-6">
-          AI Poll Insights
-        </h1>
+        <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
 
         <input
           type="text"

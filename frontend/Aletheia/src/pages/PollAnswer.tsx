@@ -1,6 +1,6 @@
 import { pollService } from "../services/PollService";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { answerService } from "../services/AnswerService";
 
 function PollAnswer() {
@@ -15,6 +15,7 @@ function PollAnswer() {
     Array<{ id: number; text: string }>
   >([]);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (id) {
@@ -49,7 +50,10 @@ function PollAnswer() {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    await answerService.submitAnswers(answers);
+    answerService
+      .submitAnswers(answers)
+      .then(() => navigate("/submit"))
+      .catch((err) => navigate("/error"));
   }
 
   return (

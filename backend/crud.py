@@ -36,7 +36,6 @@ def get_polls_by_user(db: Session, creator_id: int):
 
 def create_answer(db: Session, answer: schemas.AnswerCreate):
 
-    print("Creating answer:", answer)
     answer_model = models.Answer(question_id=answer.question_id, text=answer.text, responder_id=answer.responder_id)
     db.add(answer_model)
     db.commit()

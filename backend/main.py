@@ -57,14 +57,21 @@ class PollQuestion(BaseModel):
 
 
 print("Loading model...")
-print("Is GPU available? " + "Yes" if torch.cuda.is_available() else "No")
-print("GPU name: " + torch.cuda.get_device_name(0))
+
+if torch.cuda.is_available():
+    device = 0
+    print("Is GPU available? Yes")
+    print("GPU name:", torch.cuda.get_device_name(0))
+else:
+    device = -1
+    print("Is GPU available? No")
+    print("Running on CPU")
 
 summarization_model = pipeline(
     "text-generation",
     model="mistralai/Mistral-7B-Instruct-v0.2",
     torch_dtype="auto",
-    device=0,
+    device=device,
 )
 
 sentiment_model = pipeline("sentiment-analysis", device=0)
@@ -210,7 +217,6 @@ def get_questions_for_poll(poll_id: int, db: Session = Depends(get_db)):
 
 @app.post("/answers")
 def submit_answers(answers: AnswerList, db: Session = Depends(get_db)):
-    print("Received answers:", answers)
     created_answers = []
     for answer in answers.answers:
         created_answer = crud.create_answer(db=db, answer=answer)

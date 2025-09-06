@@ -18,7 +18,6 @@ export const answerService = {
         text,
       })
     );
-    console.log(JSON.stringify(refinedAnswers, null, 2));
     const response = await axios.post(`${API_BASE_URL}/answers`, {
       answers: refinedAnswers,
     });

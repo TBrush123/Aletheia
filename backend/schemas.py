@@ -64,3 +64,16 @@ class UserOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+# -- Response --
+class ResponseCreate(BaseModel):
+    responder_id: int
+    poll_id: int
+
+class ResponseOut(BaseModel):
+    id: int
+    responder_id: int
+    poll_id: int
+
+    class Config:
+        orm_mode = True

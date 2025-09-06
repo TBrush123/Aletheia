@@ -76,3 +76,12 @@ def verify_user(db: Session, username: str, password: str):
 
 def get_questions_for_poll(db: Session, poll_id: int):
     return db.query(models.Question).filter(models.Question.poll_id == poll_id).all()
+
+def create_response(db: Session, poll_id: int, responder_id: int):
+
+    response_model = models.Response(poll_id=poll_id, responder_id=responder_id)
+    db.add(response_model)
+    db.commit(response_model)
+    db.refresh()
+
+    return response_model

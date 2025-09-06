@@ -222,3 +222,8 @@ def submit_answers(answers: AnswerList, db: Session = Depends(get_db)):
         created_answer = crud.create_answer(db=db, answer=answer)
         created_answers.append(created_answer)
     return created_answers
+
+@app.post("/respond")
+def create_poll_response(poll_id: int, responder_id: int, db):
+    return crud.create_response(poll_id=poll_id, responder_id=responder_id)
+    

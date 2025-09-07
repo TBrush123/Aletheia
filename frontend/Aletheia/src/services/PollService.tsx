@@ -36,7 +36,7 @@ export const pollService = {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("Fetched poll details:", response.data);  
+    console.log("Fetched poll details:", response.data);
     return response.data;
   },
   getPollQuestions: async (pollId: number) => {

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-
+import { Button } from "@/components/ui/button";
 function Navbar() {
   const { user } = useAuth();
   const location = useLocation();
@@ -9,74 +9,57 @@ function Navbar() {
   const navigate = useNavigate();
 
   return (
-    <nav className="bg-white border-gray-200 dark:bg-gray-900">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-3">
-        <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
+    <nav className="bg-background border-b border-gray-200">
+      <div className="max-w-screen-xl mx-auto flex items-center justify-between px-6 py-4">
+        {/* Logo */}
+        <span className="text-2xl font-semibold text-gray-900">
           <Link to="/">Aletheia</Link>
         </span>
-        <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+
+        {/* Links */}
+        <ul className="flex items-center space-x-8 font-medium text-lg">
           {user ? (
             <>
               <li>
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={() => {
-                    navigate("/polls/create");
-                  }}
+                <Button
+                  className="bg-white text-gray-900 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-blue-600 hover:text-white hover:border-blue-600"
+                  onClick={() => navigate("/polls/create")}
                 >
-                  <span className="font-extrabold">+</span> Create Poll
-                </button>
+                  + Create Poll
+                </Button>
               </li>
-              <li
-                className={`${
-                  isActive("/polls")
-                    ? "border-b-2 border-blue-500"
-                    : "border-b-2 border-transparent hover:border-gray-200"
-                } p-3`}
-              >
+              <li>
                 <Link
                   to="/polls"
-                  className={`flex-1 py-2 text-center font-medium ${
-                    isActive("/profile")
-                      ? "text-black dark:text-white"
-                      : "text-gray-500 dark:text-gray-400"
-                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
+                  className={`${
+                    isActive("/polls")
+                      ? "text-blue-600"
+                      : "text-gray-700 hover:text-gray-900"
+                  } transition-colors`}
                 >
                   My Polls
                 </Link>
               </li>
-              <li
-                className={`${
-                  isActive("/profile")
-                    ? "border-b-2 border-blue-500"
-                    : "border-b-2 border-transparent hover:border-gray-200"
-                } p-3`}
-              >
+              <li>
                 <Link
                   to="/profile"
-                  className={`flex-1 py-2 text-center font-medium ${
+                  className={`${
                     isActive("/profile")
-                      ? "text-black dark:text-white"
-                      : "text-gray-500 dark:text-gray-400"
-                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
+                      ? "text-blue-600"
+                      : "text-gray-700 hover:text-gray-900"
+                  } transition-colors`}
                 >
                   {user.username}
                 </Link>
               </li>
-              <li
-                className={`${
-                  isActive("/logout")
-                    ? "border-b-2 border-blue-500"
-                    : "border-b-2 border-transparent hover:border-gray-200"
-                } p-3`}
-              >
+              <li>
                 <Link
                   to="/logout"
-                  className={`flex-1 py-2 text-center font-medium ${
+                  className={`${
                     isActive("/logout")
-                      ? "text-black dark:text-white"
-                      : "text-gray-500 dark:text-gray-400"
-                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-red-800 dark:hover:text-red-300`}
+                      ? "text-red-600"
+                      : "text-gray-700 hover:text-red-600"
+                  } transition-colors`}
                 >
                   Log out
                 </Link>
@@ -84,38 +67,26 @@ function Navbar() {
             </>
           ) : (
             <>
-              <li
-                className={`${
-                  isActive("/login")
-                    ? "border-b-2 border-blue-500"
-                    : "border-b-2 border-transparent hover:border-gray-200"
-                } p-3`}
-              >
+              <li>
                 <Link
                   to="/login"
-                  className={`flex-1 py-2 text-center font-medium ${
+                  className={`${
                     isActive("/login")
-                      ? "text-black dark:text-white"
-                      : "text-gray-500 dark:text-gray-400"
-                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
+                      ? "text-blue-600"
+                      : "text-gray-700 hover:text-gray-900"
+                  } transition-colors`}
                 >
                   Login
                 </Link>
               </li>
-              <li
-                className={`${
-                  isActive("/register")
-                    ? "border-b-2 border-blue-500"
-                    : "border-b-2 border-transparent hover:border-gray-200"
-                } p-3`}
-              >
+              <li>
                 <Link
                   to="/register"
-                  className={`flex-1 py-2 text-center font-medium ${
+                  className={`${
                     isActive("/register")
-                      ? "text-black dark:text-white"
-                      : "text-gray-500 dark:text-gray-400"
-                  } hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-gray-800 dark:hover:text-gray-300`}
+                      ? "text-blue-600"
+                      : "text-gray-700 hover:text-gray-900"
+                  } transition-colors`}
                 >
                   Register
                 </Link>

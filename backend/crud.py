@@ -30,6 +30,10 @@ def get_poll(db: Session, poll_id: int):
         user = db.query(models.User).filter(models.User.id == poll.creator_id).first()
         if user:
             setattr(poll, "created_by", user.username)
+            
+            count = get_poll_response_count(db=db, poll_id=poll.id)
+            setattr(poll, "response_count", count["responseCount"])
+            setattr(poll, "question_count", count["questionCount"])
 
     return poll 
 

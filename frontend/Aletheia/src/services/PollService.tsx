@@ -6,6 +6,8 @@ export type Poll = {
   id: number;
   title: string;
   created_by: string;
+  response_count?: number;
+  question_count?: number;
 };
 
 export const pollService = {
@@ -22,6 +24,9 @@ export const pollService = {
     const response = await axios.get(`${API_BASE_URL}/polls`, {
       params: { creator_id: JSON.parse(user || "{}").id },
     });
+
+    console.log("Fetched polls:", response.data);
+
     return response.data;
   },
   getPollDetails: async (pollId: number) => {
@@ -31,6 +36,7 @@ export const pollService = {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log("Fetched poll details:", response.data);  
     return response.data;
   },
   getPollQuestions: async (pollId: number) => {
@@ -40,17 +46,6 @@ export const pollService = {
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.data;
-  },
-  getAnswerNumber: async (pollId: number) => {
-    const response = await axios.get(
-      `${API_BASE_URL}/polls/${pollId}/answers`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
     return response.data;
   },
 };

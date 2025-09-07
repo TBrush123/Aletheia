@@ -2,6 +2,7 @@ import { pollService } from "../services/PollService";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { answerService } from "../services/AnswerService";
+import { responseService } from "../services/ResponseService";
 
 function PollAnswer() {
   const { id } = useParams<{ id: string }>();
@@ -50,10 +51,16 @@ function PollAnswer() {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    answerService
-      .submitAnswers(answers)
-      .then(() => navigate("/submit"))
-      .catch((err) => navigate("/error"));
+
+    try {
+      const responseData = await responseService.createResponse(Number(id));
+
+      await answerService.submitAnswers(answers, responseData.id);
+
+      navigate("/submit");
+    } catch (err) {
+      console.error("Error during submit:", err);
+    }
   }
 
   return (

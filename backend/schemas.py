@@ -5,14 +5,14 @@ from typing import List, Optional
 # -- Answers --
 class AnswerCreate(BaseModel):
     question_id: int
-    responder_id: int
+    response_id: int
     text: str
 
 
 class AnswerOut(BaseModel):
     id: int
     question_id: int
-    responder_id: int
+    response_id: int
     answer_text: str
 
     class Config:
@@ -44,6 +44,9 @@ class PollOut(BaseModel):
     id: int
     title: str
     creator_id: int
+    created_by: Optional[str] = "Unknown"
+    response_count: Optional[int] = 0
+    question_count: Optional[int] = 0
 
     class Config:
         orm_mode = True

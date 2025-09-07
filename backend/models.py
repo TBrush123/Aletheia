@@ -50,7 +50,6 @@ class Answer(Base):
     response_id = Column(Integer, ForeignKey("responses.id"))
 
     question = relationship("Question", back_populates="answers")
-    response = relationship("Response", back_populates="answers")
 
 
 class User(Base):
@@ -67,7 +66,3 @@ class Response(Base):
     id = Column(Integer, primary_key=True, index=True)
     responder_id = Column(Integer, ForeignKey("users.id"))
     poll_id = Column(Integer, ForeignKey("polls.id"))
-
-    user = relationship("User", back_populates="responses")
-    poll = relationship("Poll", back_populates="responses")
-    answer = relationship("Answer", back_populates="responses", cascade="all, delete-orphan")

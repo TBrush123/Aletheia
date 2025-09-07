@@ -1,5 +1,6 @@
 import { pollService, type Poll } from "../services/PollService";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function Polls() {
   const [polls, setPolls] = useState<Poll[]>([]);
@@ -33,12 +34,17 @@ function Polls() {
         <h1 className="font-bold text-4xl mb-8">Polls Page</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {polls.map((poll: Poll) => (
-            <div
+            <Link
+              to={`/polls/${poll.id}/details`}
               key={poll.id}
               className="border border-gray-300 rounded-lg p-4 hover:shadow-lg transition-shadow"
             >
               <h2 className="font-semibold text-xl mb-2">{poll.title}</h2>
-            </div>
+              <h6 className="text-gray-500 mb-2">
+                Responses: {poll.response_count || 0} | Questions:{" "}
+                {poll.question_count || 0}
+              </h6>
+            </Link>
           ))}
         </div>
       </div>

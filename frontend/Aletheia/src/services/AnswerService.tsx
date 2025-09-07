@@ -9,15 +9,19 @@ export type Answer = {
 };
 
 export const answerService = {
-  submitAnswers: async (answers: { [key: number]: string }) => {
-    const user = localStorage.getItem("user");
+  submitAnswers: async (
+    answers: { [key: number]: string },
+    response_id: number
+  ) => {
     const refinedAnswers = Object.entries(answers).map(
       ([question_id, text]) => ({
         question_id: Number(question_id),
-        responder_id: JSON.parse(user || "{}").id,
+        response_id,
         text,
       })
     );
+
+    console.log("Submitting answers:", refinedAnswers);
     const response = await axios.post(`${API_BASE_URL}/answers`, {
       answers: refinedAnswers,
     });

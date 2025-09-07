@@ -8,11 +8,12 @@ export type PollResponse = {
   poll_id: number;
 };
 
-export const answerService = {
+export const responseService = {
   createResponse: async (poll_id: number) => {
     const user = localStorage.getItem("user");
-    const response = await axios.post(`${API_BASE_URL}/answers`, {
-      answers: refinedAnswers,
+    const response = await axios.post(`${API_BASE_URL}/response`, {
+      poll_id,
+      responder_id: JSON.parse(user || "{}").id,
     });
     return response.data;
   },

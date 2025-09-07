@@ -201,7 +201,15 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @app.get("/polls", response_model=List[schemas.PollOut])
 def get_polls(creator_id: int, db: Session = Depends(get_db)):
-    return crud.get_polls_by_user(db=db, creator_id=creator_id)
+    polls = crud.get_polls_by_user(db=db, creator_id=creator_id)
+
+    for poll in polls:
+        response_count = crud.get_poll_response_count(db=db, poll_id=poll.id)
+        setattr(poll, "response_count", response_count["responseCount"])
+        setattr(poll, "question_count", response_count["questionCount"])
+    
+    return polls
+
 
 @app.post("/polls", response_model=schemas.PollOut)
 def create_poll(poll: schemas.PollCreate, db: Session = Depends(get_db)):
@@ -223,7 +231,7 @@ def submit_answers(answers: AnswerList, db: Session = Depends(get_db)):
         created_answers.append(created_answer)
     return created_answers
 
-@app.post("/respond")
-def create_poll_response(poll_id: int, responder_id: int, db):
-    return crud.create_response(poll_id=poll_id, responder_id=responder_id)
+@app.post("/response", response_model=schemas.ResponseOut)
+def create_poll_response(response: schemas.ResponseCreate, db: Session = Depends(get_db)):
+    return crud.create_response(db=db, response=response)
     

@@ -121,15 +121,18 @@ async def summarize_poll_answers():
     return result
 
 
-@app.post("/summarize")
-async def summarize_poll_answers_post(body: list[PollQuestion]):
+@app.post("/poll/{poll_id}/summarize")
+async def summarize_poll_answers_post(poll_id: int, db: Session = Depends(get_db)):
 
+    poll_answers = crud.get_answers_for_poll(db=db, poll_id=poll_id)
     positive_answers_amount = 0
-
-    poll_answers = []
     answer_count = 0
 
-    for index in body:
+    print(poll_answers)
+
+    for index in poll_answers:
+
+        print(index)
 
         question, answers = index.question, index.answers
 
@@ -234,4 +237,4 @@ def submit_answers(answers: AnswerList, db: Session = Depends(get_db)):
 @app.post("/response", response_model=schemas.ResponseOut)
 def create_poll_response(response: schemas.ResponseCreate, db: Session = Depends(get_db)):
     return crud.create_response(db=db, response=response)
-    
+   

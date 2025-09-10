@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Users, MessageSquare, Sparkles, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { pollService, type Poll } from "../services/PollService";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function PollDetails() {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +18,7 @@ function PollDetails() {
   const [error, setError] = useState<string | null>(null);
   const user = localStorage.getItem("user");
   const currentUserId = user ? JSON.parse(user).id : null;
+  const navigate = useNavigate();
   useEffect(() => {
     if (id) {
       pollService
@@ -40,6 +41,11 @@ function PollDetails() {
         });
     }
   }, [id, currentUserId]);
+  function handleSubmit() {
+    if (poll) {
+      navigate(`/polls/${poll.id}/summary`);
+    }
+  }
 
   if (loading) {
     return (
@@ -98,10 +104,13 @@ function PollDetails() {
 
         {/* AI Summary button */}
         <div className="mt-8 text-center">
-          <button className="inline-flex items-center gap-2 px-7.5 py-3 text-lg rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors">
+          <Button
+            className="inline-flex items-center gap-2 px-7.5 py-3 text-lg rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+            onClick={handleSubmit}
+          >
             <Sparkles className="w-5 h-5" />
             AI Summary
-          </button>
+          </Button>
         </div>
       </div>
     </div>

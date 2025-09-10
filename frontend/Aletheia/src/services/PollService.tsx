@@ -48,4 +48,16 @@ export const pollService = {
     });
     return response.data;
   },
+  getAISummary: async (pollId: number) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(
+      `${API_BASE_URL}/poll/${pollId}/summary`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  },
 };

@@ -121,7 +121,7 @@ async def summarize_poll_answers():
     return result
 
 
-@app.post("/poll/{poll_id}/summarize")
+@app.get("/poll/{poll_id}/summary")
 async def summarize_poll_answers_post(poll_id: int, db: Session = Depends(get_db)):
 
     poll_answers = crud.get_answers_for_poll(db=db, poll_id=poll_id)
@@ -134,7 +134,13 @@ async def summarize_poll_answers_post(poll_id: int, db: Session = Depends(get_db
 
         print(index)
 
-        question, answers = index.question, index.answers
+        question = index.question.text
+
+        print(question)
+
+        answer = index.text
+
+        print(answer)
 
         print(f"Processing question: {question}")
         print(f"Answers: {answers}")

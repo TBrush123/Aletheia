@@ -105,7 +105,7 @@ function PollDetails() {
         {/* AI Summary button */}
         <div className="mt-8 text-center">
           <Button
-            className="inline-flex items-center gap-2 px-7.5 py-3 text-lg rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+            className="inline-flex items-center gap-2 px-10 py-5   text-lg rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
             onClick={handleSubmit}
           >
             <Sparkles className="w-5 h-5" />

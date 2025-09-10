@@ -7,6 +7,7 @@ import Polls from "./pages/Polls";
 import PollsAnswer from "./pages/PollAnswer";
 import SubmitPage from "./pages/SubmitPage";
 import PollDetails from "./pages/PollDetails";
+import AISummary from "./pages/AISummary";
 import Navbar from "./features/Navbar";
 import { Routes, Route } from "react-router-dom";
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/polls/:id" element={<PollsAnswer />} />
         <Route path="/submit" element={<SubmitPage />} />
         <Route path="/polls/:id/details" element={<PollDetails />} />
+        <Route path="/polls/:id/summary" element={<AISummary />} />
       </Routes>
     </>
   );

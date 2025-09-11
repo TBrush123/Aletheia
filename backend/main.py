@@ -9,13 +9,15 @@ from sqlalchemy.orm import Session
 from . import models, schemas, crud, database
 from .database import engine, SessionLocal
 from fastapi.middleware.cors import CORSMiddleware
+import json
 import torch
+import re
 
 app = FastAPI(title="AI Poll Insights API", root_path="/api")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # или ["*"] для всех
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,20 +34,87 @@ def get_db():
         db.close()
 
 
+import re
+import json
+from typing import List
+from langchain.schema import BaseOutputParser
+
 class SummaryParser(BaseOutputParser):
     def parse(self, text: str) -> dict:
+        print("Raw model output:", text)
 
-        sections = text.split("\n")
+        text = re.split(r'\[\[Prototype\]\].*$', text, flags=re.DOTALL)[0].strip()
+        objects = self._find_top_level_braced_objects(text)
+        if objects:
+            candidate = objects[-1]
+        else:
+            candidate = text
+
+        for fn in (self._try_json_load, self._try_cleanup_and_load, self._try_section_regex):
+            try:
+                parsed = fn(candidate, full_text=text)
+                return {
+                    "Positive Feedback": parsed.get("Positive Feedback", "").strip(),
+                    "Negative Feedback": parsed.get("Negative Feedback", "").strip(),
+                    "Suggestions for Improvement": parsed.get("Suggestions for Improvement", "").strip(),
+                }
+            except Exception as e:
+                last_err = e
+
+        raise ValueError(f"Unable to parse output. Last error: {last_err}\nRaw text: {text}")
+
+    def _find_top_level_braced_objects(self, s: str) -> List[str]:
+        objs = []
+        stack = 0
+        start = None
+        for i, ch in enumerate(s):
+            if ch == '{':
+                if stack == 0:
+                    start = i
+                stack += 1
+            elif ch == '}':
+                stack -= 1
+                if stack == 0 and start is not None:
+                    objs.append(s[start:i+1])
+                    start = None
+        return objs
+
+    def _try_json_load(self, s: str, **_) -> dict:
+        return json.loads(s)
+
+    def _try_cleanup_and_load(self, s: str, **_) -> dict:
+        cleaned = s
+        cleaned = cleaned.replace('“', '"').replace('”', '"').replace('’', "'").replace('‘', "'")
+        cleaned = re.sub(r'BEGIN_JSON', '', cleaned)
+        cleaned = re.sub(r'END_JSON', '', cleaned)
+        cleaned = re.sub(r',\s*([}\]])', r'\1', cleaned)
+        cleaned = re.sub(r'(?<=\{|,)\s*([A-Za-z0-9 _\-]+)\s*:', r'"\1":', cleaned)
+        cleaned = re.sub(r':\s*\'([^\']*)\'', r': "\1"', cleaned)
+        return json.loads(cleaned)
+
+    def _try_section_regex(self, s: str, full_text: str = None) -> dict:
+        text = full_text if full_text is not None else s
+
+        def extract_between(key, text, next_keys):
+            nk = '|'.join(re.escape(k) for k in next_keys)
+            pattern = rf'{re.escape(key)}\s*[:\n]\s*(["\']?)(.*?)\1\s*(?=(?:{nk})\s*[:\n]|$)'
+            m = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+            if m:
+                return m.group(2).strip()
+            m2 = re.search(rf'"{re.escape(key)}"\s*:\s*"(.*?)"', text, re.DOTALL | re.IGNORECASE)
+            if m2:
+                return m2.group(1).strip()
+            return ""
+
+        keys = ["Positive Feedback", "Negative Feedback", "Suggestions for Improvement"]
+        pf = extract_between(keys[0], text, keys[1:])
+        nf = extract_between(keys[1], text, [keys[2]])
+        sf = extract_between(keys[2], text, [])
+
         return {
-            "Positive Feedback": sections[-3]
-            .replace("Positive Feedback: ", "")
-            .strip(),
-            "Negative Feedback": sections[-2]
-            .replace("Negative Feedback: ", "")
-            .strip(),
-            "Suggestions for Improvement": sections[-1]
-            .replace("Suggestions for Improvement: ", "")
-            .strip(),
+            "Positive Feedback": pf,
+            "Negative Feedback": nf,
+            "Suggestions for Improvement": sf,
         }
 
 class AnswerList(BaseModel):
@@ -74,22 +143,30 @@ summarization_model = pipeline(
     device=device,
 )
 
-sentiment_model = pipeline("sentiment-analysis", device=0)
 
 llm = HuggingFacePipeline(pipeline=summarization_model)
 
 template = PromptTemplate.from_template(
-    """Summarize the following poll answers with provided question: {poll_answers}.
-    Respond in exactly three lines, each starting with the section name followed by the summary on the same line.
-    Format the response as follows:
-        "Positive Feedback": <1-2 sentences combining all strengths into a concise summary.>
-        "Negative Feedback": <1-2 sentences combining all criticisms into a concise summary.>
-        "Suggestions for Improvement": <1-2 sentences summarizing common recommendations.>
-    Do not list multiple points separately — merge them into flowing sentences. Do not exceed two sentences per section.
-    Do not include any additional text or explanations.
-    Do not add additionial newlines or formatting.
-    """
+    """Summarize the following poll answers: {poll_answers}
+
+Return EXACTLY one JSON object between the markers BEGIN_JSON and END_JSON and nothing else.
+
+BEGIN_JSON
+{{
+  "Positive Feedback": "<1-2 sentence summary or empty string>",
+  "Negative Feedback": "<1-2 sentence summary or empty string>",
+  "Suggestions for Improvement": "<1-2 sentence summary or empty string>"
+}}
+END_JSON
+
+Rules:
+- Return only the JSON between BEGIN_JSON and END_JSON.
+- Use double quotes for keys and string values; produce valid JSON.
+- If a field has no content, set it to an empty string "".
+- Do not echo the example, do not add extra text or commentary.
+"""
 )
+
 
 chain = template | llm | SummaryParser()
 
@@ -124,44 +201,27 @@ async def summarize_poll_answers():
 @app.get("/poll/{poll_id}/summary")
 async def summarize_poll_answers_post(poll_id: int, db: Session = Depends(get_db)):
 
-    poll_answers = crud.get_answers_for_poll(db=db, poll_id=poll_id)
-    positive_answers_amount = 0
-    answer_count = 0
+    poll_questions = crud.get_questions_for_poll(db=db, poll_id=poll_id)
+    poll_responses = {}
 
-    print(poll_answers)
+    poll_formated_responses = []
 
-    for index in poll_answers:
+    for question in poll_questions:
+        answers = crud.get_answers_for_question(db=db, question_id=question.id)
+        poll_responses[question.text] = [answer.text for answer in answers]
 
-        print(index)
+    print(poll_responses)
 
-        question = index.question.text
 
-        print(question)
+    for question, answers in poll_responses.items():
 
-        answer = index.text
+        poll_formated_responses.append(f"question: {question} answers: {', '.join(answers)}")
 
-        print(answer)
 
-        print(f"Processing question: {question}")
-        print(f"Answers: {answers}")
+    result = chain.invoke({"poll_answers": poll_formated_responses})
+    
 
-        for answer in answers:
-            sentiment = sentiment_model(answer)[0]
-            if sentiment["label"] == "POSITIVE":
-                positive_answers_amount += 1
-            answer_count += 1
-
-        poll_answers.append(f"{question}: {"\n".join(answers)}")
-
-    result = chain.invoke({"poll_answers": poll_answers})
-    result["Positive Answer Percentage"] = (
-        f"{(positive_answers_amount / answer_count) * 100:.2f}%"
-    )
-    result["Negative Answer Percentage"] = (
-        f"{((answer_count - positive_answers_amount) / answer_count) * 100:.2f}%"
-    )
-    result["Total Answers"] = answer_count
-
+    print(f"the result response: {result}")
     return result
 
 

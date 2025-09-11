@@ -79,6 +79,8 @@ def get_answers_for_poll(db: Session, poll_id: int):
         .all()
     )
 
+def get_answers_for_question(db: Session, question_id: int):
+    return db.query(models.Answer).filter(models.Answer.question_id == question_id).all()
 
 def create_user(db: Session, user: schemas.UserCreate):
 

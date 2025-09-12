@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from datetime import datetime
 
 
 # -- Answers --
@@ -77,6 +78,7 @@ class ResponseOut(BaseModel):
     id: int
     responder_id: int
     poll_id: int
+    created_at: datetime
 
     class Config:
         orm_mode = True

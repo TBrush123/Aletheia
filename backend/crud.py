@@ -132,3 +132,12 @@ def delete_ai_summary_from_db(db: Session, poll_id: int):
     if ai_summary:
         db.delete(ai_summary)
         db.commit()
+
+def get_all_responses(db: Session, responder_id: int):
+    return db.query(models.Response).filter(models.Response.responder_id == responder_id).all()
+
+def delete_account(db: Session, user_id: int):
+    account_model = db.query(models.User).filter(models.User.id == user_id).first()
+
+    db.delete(account_model)
+    db.commit()

@@ -11,9 +11,6 @@ export const authService = {
       password,
     });
     console.log("Login response:", response.data);
-    ///if (response.data.token) {
-    /// localStorage.setItem("token", response.data.token);
-    ///}
 
     localStorage.setItem("token", "banana"); // Test token
     response.data.token = "banana"; // Test token
@@ -37,5 +34,23 @@ export const authService = {
   getCurrentUser: () => {
     const token = localStorage.getItem("token");
     return token ? JSON.parse(atob(token.split(".")[1])) : null;
+  },
+  deleteAccount: async () => {
+    try {
+      const user = localStorage.getItem("user");
+      const user_id = JSON.parse(user || "{}").id;
+
+      const token = localStorage.getItem("token");
+
+      await axios.delete(`${API_BASE_URL}/users/delete`, {
+        params: { user_id },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      localStorage.clear();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    }
   },
 };

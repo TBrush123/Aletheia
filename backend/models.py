@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Date
 from sqlalchemy.orm import relationship
 from .database import Base
+import datetime
 
 
 class Poll(Base):
@@ -61,3 +62,4 @@ class Response(Base):
     id = Column(Integer, primary_key=True, index=True)
     responder_id = Column(Integer, ForeignKey("users.id"))
     poll_id = Column(Integer, ForeignKey("polls.id"))
+    created_at = Column(Date, default=datetime.datetime.now)

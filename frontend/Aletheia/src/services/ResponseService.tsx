@@ -6,6 +6,8 @@ export type PollResponse = {
   id: number;
   responder_id: number;
   poll_id: number;
+  created_at: Date;
+  poll_title?: string;
 };
 
 export const responseService = {
@@ -15,6 +17,14 @@ export const responseService = {
       poll_id,
       responder_id: JSON.parse(user || "{}").id,
     });
+    return response.data;
+  },
+  getResponses: async () => {
+    const user = localStorage.getItem("user");
+    const response = await axios.get(`${API_BASE_URL}/response`, {
+      params: { responder_id: JSON.parse(user || "{}").id },
+    });
+
     return response.data;
   },
 };

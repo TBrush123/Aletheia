@@ -326,3 +326,10 @@ def submit_answers(answers: AnswerList, db: Session = Depends(get_db)):
 def create_poll_response(response: schemas.ResponseCreate, db: Session = Depends(get_db)):
     return crud.create_response(db=db, response=response)
    
+@app.get("/response", response_model=List[schemas.ResponseOut])
+def get_all_responses(responder_id: int, db: Session = Depends(get_db)):
+    return crud.get_all_responses(db=db, responder_id=responder_id)
+
+@app.delete("/users/delete")
+def delete_account(user_id: int, db: Session = Depends(get_db)):
+    crud.delete_account(db=db, user_id=user_id)

@@ -26,6 +26,12 @@ export const authService = {
       username,
       password,
     });
+    localStorage.setItem("token", "banana"); // Test token
+    response.data.token = "banana"; // Test token
+    response.data.user = {
+      id: response.data.user_id,
+      username: response.data.username,
+    };
     return response.data;
   },
   logout: () => {

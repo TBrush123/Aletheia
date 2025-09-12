@@ -1,8 +1,20 @@
 import { pollService } from "../services/PollService";
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { answerService } from "../services/AnswerService";
 import { responseService } from "../services/ResponseService";
+
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function PollAnswer() {
   const { id } = useParams<{ id: string }>();
@@ -43,10 +55,18 @@ function PollAnswer() {
   }, [id]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+        Loading...
+      </div>
+    );
   }
   if (!poll) {
-    return <div>Poll not found</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+        Poll not found
+      </div>
+    );
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -64,40 +84,56 @@ function PollAnswer() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <form
-        className="bg-white shadow-lg rounded-xl p-6 w-6/12 text-center"
-        onSubmit={handleSubmit}
-      >
-        <h1 className="text-4xl font-bold mb-4">{poll.title}</h1>
-        <p className="text-gray-600 mb-4">Created by: {poll.created_by}</p>
-        <ol type="1" className="list-decimal list-inside">
-          {questions.map((question) => (
-            <>
-              <li key={question.id} className="mb-2 flex text-left">
-                {question.text}
-              </li>
-              <input
-                type="text"
-                className="border p-2 w-full mb-4"
-                value={answers[question.id] || ""}
-                onChange={(e) => {
-                  setAnswers((prev) => ({
-                    ...prev,
-                    [question.id]: e.target.value,
-                  }));
-                }}
-              />
-            </>
-          ))}
-        </ol>
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Submit Answers
-        </button>
-      </form>
+    <div className="flex items-center justify-center min-h-screen bg-background p-6">
+      <Card className="w-full max-w-3xl shadow-2xl p-6 sm:p-10">
+        <form onSubmit={handleSubmit} className="space-y-10">
+          <CardHeader className="space-y-3">
+            <CardTitle className="text-4xl font-bold text-center">
+              {poll.title}
+            </CardTitle>
+            <CardDescription className="text-center text-lg">
+              Created by: {poll.created_by}
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <ol className="list-decimal list-inside space-y-10">
+              {questions.map((question, index) => (
+                <li key={question.id} className="space-y-4">
+                  <Label
+                    htmlFor={`q-${question.id}`}
+                    className="text-xl font-semibold"
+                  >
+                    {question.text}
+                  </Label>
+                  <Input
+                    id={`q-${question.id}`}
+                    type="text"
+                    placeholder={`Your answer for Question ${index + 1}`}
+                    value={answers[question.id] || ""}
+                    onChange={(e) =>
+                      setAnswers((prev) => ({
+                        ...prev,
+                        [question.id]: e.target.value,
+                      }))
+                    }
+                    className="h-12 text-lg"
+                  />
+                </li>
+              ))}
+            </ol>
+          </CardContent>
+
+          <CardFooter className="flex justify-center">
+            <Button
+              type="submit"
+              className="w-full sm:w-auto h-12 px-8 text-lg"
+            >
+              Submit Answers
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 }

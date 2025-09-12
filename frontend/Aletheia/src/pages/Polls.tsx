@@ -2,6 +2,7 @@ import { pollService, type Poll } from "../services/PollService";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function Polls() {
   const [polls, setPolls] = useState<Poll[]>([]);
@@ -23,8 +24,13 @@ function Polls() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
-        <div className="text-white text-xl">Loading polls...</div>
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <Card className="bg-white shadow-lg rounded-xl p-6 w-9/12 text-center">
+          <h1 className="font-bold text-4xl mb-8">Polls Page</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Skeleton className="h-4 w-[250px]" />
+          </div>
+        </Card>
       </div>
     );
   }

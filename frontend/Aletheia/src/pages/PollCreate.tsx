@@ -2,6 +2,16 @@ import { useState } from "react";
 import { pollService, type Poll } from "../services/PollService";
 import { questionService } from "../services/QuestionService";
 import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function PollCreate() {
   const [title, setTitle] = useState<string>("");
@@ -11,22 +21,12 @@ function PollCreate() {
   function addQuestion() {
     setQuestions([...questions, ""]);
   }
+
   function deleteQuestion(index: number) {
     const updated = questions.filter((_, i) => i !== index);
     setQuestions(updated);
   }
-  function showAddButton() {
-    if (questions[questions.length - 1].trim() !== "") {
-      return (
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={addQuestion}
-        >
-          <span>+</span> Add another Question
-        </button>
-      );
-    }
-  }
+
   function canSubmit() {
     return (
       questions.every((q) => q.trim() !== "") &&
@@ -34,70 +34,78 @@ function PollCreate() {
       title.trim() !== ""
     );
   }
-  function submitButton() {
-    if (canSubmit()) {
-      return (
-        <button
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 mx-4"
-          type="submit"
-        >
-          Submit Poll
-        </button>
-      );
-    }
-  }
-  function handleSubmit(e: React.FormEvent) {
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    pollService.createPoll(title).then((poll: Poll) => {
-      questions.forEach((q) => {
-        questionService.addQuestion(poll.id, q);
-      });
-    });
+    const poll: Poll = await pollService.createPoll(title);
+    for (const q of questions) {
+      await questionService.addQuestion(poll.id, q);
+    }
     navigate("/");
   }
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <form
-        className="bg-white shadow-lg rounded-xl p-6 w-6/12 text-center"
-        onSubmit={handleSubmit}
-      >
-        <div>
-          <input
-            type="text"
-            placeholder="Poll Title"
-            className="font-bold text-4xl mb-8"
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-        {questions.map((q, index) => (
-          <div key={index} className="mb-4">
-            <label>{index + 1}.</label>
-            <input
-              type="text"
-              placeholder="Question"
-              className="mx-2"
-              value={q}
-              onChange={(e) => {
-                const updated = [...questions];
-                updated[index] = e.target.value;
-                setQuestions(updated);
-              }}
-            />
-            {questions.length > 1 && (
-              <button
-                onClick={() => {
-                  deleteQuestion(index);
-                }}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 mx-1 my-2 rounded"
-              >
-                Delete Question
-              </button>
-            )}
-          </div>
-        ))}
-        {showAddButton()}
-        {submitButton()}
-      </form>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <Card className="w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle className="text-center text-3xl font-bold">
+            Create a New Poll
+          </CardTitle>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="poll-title" className="text-lg">
+                Poll Title
+              </Label>
+              <Input
+                id="poll-title"
+                type="text"
+                placeholder="Enter poll title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-4">
+              {questions.map((q, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Label className="w-6 text-center">{index + 1}.</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter question"
+                    value={q}
+                    onChange={(e) => {
+                      const updated = [...questions];
+                      updated[index] = e.target.value;
+                      setQuestions(updated);
+                    }}
+                  />
+                  {questions.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => deleteQuestion(index)}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </div>
+              ))}
+              {questions[questions.length - 1].trim() !== "" && (
+                <Button type="button" variant="outline" onClick={addQuestion}>
+                  + Add another question
+                </Button>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-center my-4">
+            <Button type="submit" disabled={!canSubmit()} className="w-1/2">
+              Submit Poll
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 }

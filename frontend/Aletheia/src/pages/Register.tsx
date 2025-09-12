@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Card, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 function Register() {
   const { register } = useAuth();
@@ -14,54 +19,48 @@ function Register() {
     try {
       await register(username, password);
       console.log("Registered and logged in!");
+      navigate("/");
     } catch (err) {
       setError("Failed to register");
     }
-    navigate("/");
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-xl p-6 w-96"
-      >
-        <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-50 to-gray-100">
+      <Card className="shadow-lg rounded-2xl p-8 w-96">
+        <CardTitle className="text-3xl font-bold text-center mb-6">
+          Create Account
+        </CardTitle>
 
-        <input
-          type="text"
-          placeholder="Enter username"
-          className="w-full p-2 mb-4 border rounded"
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Enter password"
-          className="w-full p-2 mb-4 border rounded"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button
-          className="w-full bg-yellow-400 py-2 rounded font-bold"
-          type="submit"
-        >
-          Register
-        </button>
-        <div className="flex items-center my-4">
-          <div className="flex-grow h-px bg-gray-300"></div>
-          <span className="mx-2 text-gray-500 text-sm">or</span>
-          <div className="flex-grow h-px bg-gray-300"></div>
-        </div>
-
-        <div className="flex justify-around">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded">
-            Facebook
-          </button>
-          <button className="bg-blue-400 text-white px-4 py-2 rounded">
-            Twitter
-          </button>
-        </div>
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            type="text"
+            placeholder="Enter username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full"
+          />
+          <Input
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full"
+          />
+          <Button type="submit" className="w-full font-semibold">
+            Register
+          </Button>
+        </form>
+        <p className="mt-4 text-center text-gray-600">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            Log in
+          </Link>
+        </p>
+      </Card>
     </div>
   );
 }

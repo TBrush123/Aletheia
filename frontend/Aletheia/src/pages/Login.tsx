@@ -1,6 +1,10 @@
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Card, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 function Login() {
   const { login } = useAuth();
@@ -12,54 +16,49 @@ function Login() {
     e.preventDefault();
     try {
       await login(username, password);
+      navigate("/");
     } catch (error) {
       console.error("Login failed:", error);
     }
-    navigate("/");
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-xl p-6 w-96"
-      >
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-50 to-gray-100">
+      <Card className="shadow-lg rounded-2xl p-8 w-96">
+        <CardTitle className="text-3xl font-bold text-center mb-6">
+          Log in
+        </CardTitle>
 
-        <input
-          type="text"
-          placeholder="Enter username"
-          className="w-full p-2 mb-4 border rounded"
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Enter password"
-          className="w-full p-2 mb-4 border rounded"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            type="text"
+            placeholder="Enter username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full"
+          />
+          <Input
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full"
+          />
+          <Button type="submit" className="w-full font-semibold">
+            Login
+          </Button>
+        </form>
 
-        <button
-          className="w-full bg-yellow-400 py-2 rounded font-bold"
-          type="submit"
-        >
-          Login
-        </button>
-        <div className="flex items-center my-4">
-          <div className="flex-grow h-px bg-gray-300"></div>
-          <span className="mx-2 text-gray-500 text-sm">or</span>
-          <div className="flex-grow h-px bg-gray-300"></div>
-        </div>
-
-        <div className="flex justify-around">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded">
-            Facebook
-          </button>
-          <button className="bg-blue-400 text-white px-4 py-2 rounded">
-            Twitter
-          </button>
-        </div>
-      </form>
+        <p className="mt-4 text-center text-gray-600">
+          Don’t have an account?{" "}
+          <Link
+            to="/register"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            Register
+          </Link>
+        </p>
+      </Card>
     </div>
   );
 }

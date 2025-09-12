@@ -50,8 +50,17 @@ export const pollService = {
   },
   getAISummary: async (pollId: number) => {
     const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_BASE_URL}/poll/${pollId}/summary`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
+  regenerateResponse: async (pollId: number) => {
+    const token = localStorage.getItem("token");
     const response = await axios.get(
-      `${API_BASE_URL}/poll/${pollId}/summary`,
+      `${API_BASE_URL}/poll/${pollId}/summary/delete`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

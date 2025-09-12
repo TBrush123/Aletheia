@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, MessageSquare, Sparkles, User } from "lucide-react";
+import { Users, MessageSquare, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { pollService, type Poll } from "../services/PollService";
 import { useParams, useNavigate } from "react-router-dom";

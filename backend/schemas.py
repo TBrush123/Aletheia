@@ -80,3 +80,20 @@ class ResponseOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+# -- AI Response --
+class AIResponseCreate(BaseModel):
+    poll_id: int
+    positive_feedback: str
+    negative_feedback: str
+    suggestions_for_improvement: str
+
+class AIResponseOut(BaseModel):
+    id: int
+    poll_id: int
+    positive_feedback: str
+    negative_feedback: str
+    suggestions_for_improvement: str
+
+    class Config:
+        orm_mode = True

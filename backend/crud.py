@@ -113,3 +113,22 @@ def create_response(db: Session, response: schemas.ResponseCreate):
     db.refresh(response_model )
 
     return response_model
+
+def save_ai_summary(db: Session, ai_response: schemas.AIResponseCreate, poll_id: int):
+    print(ai_response)
+    ai_response_model = models.AIResponse(poll_id = poll_id, positive_feedback = ai_response.positive_feedback, negative_feedback = ai_response.negative_feedback, suggestions_for_improvement = ai_response.suggestions_for_improvement)
+    db.add(ai_response_model)
+    db.commit()
+    db.refresh(ai_response_model)
+
+    return ai_response_model
+
+def get_ai_summary_from_db(db: Session, poll_id: int):
+    return db.query(models.AIResponse).filter(models.AIResponse.poll_id == poll_id).first()
+
+def delete_ai_summary_from_db(db: Session, poll_id: int):
+    ai_summary = db.query(models.AIResponse).filter(models.AIResponse.poll_id == poll_id).first()
+    
+    if ai_summary:
+        db.delete(ai_summary)
+        db.commit()

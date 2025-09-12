@@ -149,6 +149,7 @@ llm = HuggingFacePipeline(pipeline=summarization_model)
 template = PromptTemplate.from_template(
     """Summarize the following poll answers: {poll_answers}
 
+Extract feedback and organize it into exactly 3 categories: Positive Feedback, Negative Feedback, and Suggestions for Improvement. Each should be a JSON array of sentences.
 Return EXACTLY one JSON object between the markers BEGIN_JSON and END_JSON and nothing else.
 
 BEGIN_JSON
@@ -164,6 +165,7 @@ Rules:
 - Use double quotes for keys and string values; produce valid JSON.
 - If a field has no content, set it to an empty string "".
 - Do not echo the example, do not add extra text or commentary.
+- 
 """
 )
 
@@ -190,17 +192,7 @@ test_poll_answers = [
     },
 ]
 
-
-@app.get("/summarize/{poll_id}")
-async def summarize_poll_answers():
-
-    result = chain.invoke({"poll_answers": test_poll_answers})
-    return result
-
-
-@app.get("/poll/{poll_id}/summary")
-async def summarize_poll_answers_post(poll_id: int, db: Session = Depends(get_db)):
-
+def create_ai_summary(db, poll_id):
     poll_questions = crud.get_questions_for_poll(db=db, poll_id=poll_id)
     poll_responses = {}
 
@@ -221,9 +213,39 @@ async def summarize_poll_answers_post(poll_id: int, db: Session = Depends(get_db
     result = chain.invoke({"poll_answers": poll_formated_responses})
     
 
-    print(f"the result response: {result}")
     return result
 
+
+
+@app.get("/summarize/{poll_id}")
+async def summarize_poll_answers(db, poll_id):
+
+    result = chain.invoke({"poll_answers": test_poll_answers})
+
+    return result
+    
+
+
+
+@app.get("/poll/{poll_id}/summary", response_model=schemas.AIResponseOut)
+async def summarize_poll_answers_post(poll_id: int, db: Session = Depends(get_db)):
+
+    summary = crud.get_ai_summary_from_db(db=db, poll_id=poll_id)
+
+    if summary:
+        return summary
+
+    ai_response = create_ai_summary(db=db, poll_id=poll_id)
+
+    result = schemas.AIResponseCreate(poll_id=poll_id, positive_feedback=ai_response["Positive Feedback"], negative_feedback=ai_response["Negative Feedback"], suggestions_for_improvement=ai_response["Suggestions for Improvement"])
+
+    ai_model = crud.save_ai_summary(db=db, ai_response=result, poll_id=poll_id)
+
+    return ai_model
+
+@app.get("/poll/{poll_id}/summary/delete")
+async def summarize_poll_answers_post(poll_id: int, db: Session = Depends(get_db)):
+    crud.delete_ai_summary_from_db(db=db, poll_id=poll_id)
 
 @app.get("/polls/{poll_id}", response_model=schemas.PollOut)
 def get_poll(poll_id: int, db: Session = Depends(get_db)):

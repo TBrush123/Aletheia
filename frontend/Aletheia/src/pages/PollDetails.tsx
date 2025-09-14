@@ -5,6 +5,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Users, MessageSquare, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -17,6 +28,10 @@ function PollDetails() {
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
+
+  const [link, setLink] = useState("");
   const user = localStorage.getItem("user");
   const currentUserId = user ? JSON.parse(user).id : null;
   const navigate = useNavigate();
@@ -27,6 +42,7 @@ function PollDetails() {
         .then((data) => {
           if (data.creator_id === currentUserId) {
             setPoll(data);
+            setLink(`${baseUrl}/polls/${id}`);
           } else {
             setError("You do not have permission to view this poll.");
             setPoll(null);
@@ -47,6 +63,12 @@ function PollDetails() {
       navigate(`/polls/${poll.id}/summary`);
     }
   }
+  function copyToClipboard(link: string) {
+    navigator.clipboard
+      .writeText(link)
+      .then(() => console.log("Copied!"))
+      .catch(() => console.log("Failed to copy."));
+  }
 
   if (loading) {
     return (
@@ -55,8 +77,6 @@ function PollDetails() {
           <CardTitle className="text-3xl font-semibold text-gray-900 text-center">
             Poll Details
           </CardTitle>
-
-          <CardDescription className="text-lg text-center text-gray-600 mt-2"></CardDescription>
 
           <div className="grid grid-cols-2 gap-6 mt-8">
             <CardHeader className="flex flex-col items-center border border-gray-200 rounded-lg py-6 bg-green-600 transition-transform transform hover:bg-green-800 hover:text-white hover:scale-105">
@@ -101,9 +121,36 @@ function PollDetails() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
       <div className="w-full max-w-lg bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
-        <CardTitle className="text-3xl font-semibold text-gray-900 text-center">
-          Poll Details
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-3xl font-semibold text-gray-900">
+            Poll Details
+          </CardTitle>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                className="px-4 py-2 text-sm rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                onClick={() => {
+                  copyToClipboard(link);
+                }}
+              >
+                Copy link
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Link Copied!</AlertDialogTitle>
+                <AlertDialogDescription>
+                  The link has been copied to your clipboard. You can now share
+                  it.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Ok</AlertDialogCancel>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
 
         <CardDescription className="text-lg text-center text-gray-600 mt-2">
           {" "}

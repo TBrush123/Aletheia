@@ -29,7 +29,7 @@ export const authService = {
     localStorage.setItem("token", "banana"); // Test token
     response.data.token = "banana"; // Test token
     response.data.user = {
-      id: response.data.user_id,
+      id: response.data.id,
       username: response.data.username,
     };
     return response.data;
